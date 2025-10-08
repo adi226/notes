@@ -55,3 +55,52 @@ GPL was released in 1989. The current version of the license, version 3, was rel
     - There are multiple Linux distributors and because the kernel implementers don’t control the contents of distributions, there is no “standard” commercial Linux as such. Each Linux distributor’s kernel offering is typically based on a snap shot of the mainline (i.e., the Torvalds) kernel at a particular point in time, with a number of patches applied.
 -----------------------------------------------------
 - Linux Kernel resides at then pathname /boot/vmlinuz
+- Tasks performed by kernel:
+    - Process scheduling: Linux is preemptive multitasking OS. Multiple processes can simultaneously reside in memory and each may receive use of the CPU(s). Preemptive means, which processes receive use of CPU and for how long is determined by kernel process scheduler.
+    - Memory management: RAM is limited resource that is shared among processes. Linux employs virtual memory management.
+        - Processes are isolated from one another and kernel.
+        - Only part of process needs to be kept in memory.
+    - Provision of a file system: Kernel provides a file system on disk
+    - Creation and termination of processes: Loads program into memory, provides it with resources.
+    - Access to devices
+    - Networking: Kernel transmits and receives network messages on behalf of user processes.
+    - Provision of a system call application programming interface (API): Processes can request Kernel to perform various tasks using kernel entry points known as system calls.
+    - Multiuser OS like Linux provides virtual private computer. Each use can log on to system and operate independently.
+- User Mode and Kernel Mode (supervisor mode). Areas of virtual memory are marked for user space and kernel space.
+- Operations like halt instruction, accessing memory-management hardware, initiating device I/O operations can only be done in Kernel space.
+- Shell (command interpreter) is a user process to read user typed command and execute them.
+    - Bourne shell (sh) - by Steve Bourne. Has I/O direction, pipe-lines etc.
+    - C shell (csh) - Bill Joy
+    - Korn shell (ksh) - successor to Bourne shell
+    - Bourne again shell (bash) - GNU implementation of Bourne shell.
+- Users: Every user has unique login name (username) and corresponding numeric user ID (UID) defined in password file, /etc/passwd
+    - Group ID: numeric group ID of which user is member
+    - Home directory: initial directory into which user is placed after logging in
+    - Login shell: name of program to be executed to interpret user commands
+    - May contain password files, passwords are often stored in shadow password file in encrypted form
+- Groups: For controlling access to files and other system resources users are organized in groups. Each group is identified by a single line in the system group file, /etc/group
+    - Group name: unique name of group
+    - Group ID (GID): numeric ID associated with group
+    - User list: list of login names of users who are members of a this group
+- Superuser has special privileges. has user ID 0 and normally has login name root. It can access any file on system, send signals to any process on the system.
+- Linux has single hierarchical directory structure (in Windows each disk device has its own directory hierarchy).
+    - At bast is root directory, named / (slash)
+
+    ![alt text](image-1.png)
+    - Each file has a file type (regular or plain file), devices, pipes, sockets, directories, symbolic links
+- Directory is table of file coupled with references. filename-plus-reference is called a link.
+    - directory always has two entries . (self) and .. (parent)
+    - For root directory .. is link to itself.
+- Symbolic link provide alternate name for a file. Normal file is filename-plus-pointer entry, for sym link file referred to by pointer contains a string that names another file (target file).
+    - If symlink points to a file that don't exist it is called dangling link.
+- In filename don't use (/) and (\0) and avoid (-)  (hyphen) as that can be for options
+- Absolute path are w.r.t root directory, relative is w.r.t working directory. Each process has current working directory (it is process's "current location" withing single directory hierarchy). A process inherits its current directory from its parent process.
+- Each file has user ID and group ID to define owner of file and group it belong to. User are divided in 3 groups
+    - owner of file
+    - users member of group matching the file's group ID.
+    - rest of world (other)
+    - Three permissions bits set for each of these categories of user. read (read contents of file), write (modify contents) and execute permission (scripts).
+    - Permissions also set on directories
+        - read allows contents of (i.e. filenames) directory to be listed.
+        - write allows contents to be changes. Add, remove and change filenames.
+        - execute (called search) allows access to files within the directory.
