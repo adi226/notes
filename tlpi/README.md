@@ -104,3 +104,76 @@ GPL was released in 1989. The current version of the license, version 3, was rel
         - read allows contents of (i.e. filenames) directory to be listed.
         - write allows contents to be changes. Add, remove and change filenames.
         - execute (called search) allows access to files within the directory.
+- File I/O Model
+    - Universality of I/O, same system calls (open(), read(), write(), close()) used to perform I/O on all types of files, including devices. Kernel translates I/O requests into appropriate file-system or device-driver operations that perform I/O.
+    - Kernel provides one file type: sequential stream of bytes, in case of disk files, and tape devices, can be randomly accessed using lseek() system call.
+    - Many applications & libraries interpret newline character (ASCII 10 called linefeed) as terminating one line and commencing another. UNIX systems has no end-of-file character, end of file is detected by a read that returns no data.
+    - I/O system calls opens files using file descriptor (non-negative integer) obtained by open() which takes pathname argument specifying file upon which I/O is performed.
+    - Process inherits 3 open fds when started by shell:
+        - descriptor 0 is standard input: file from which process takes its input
+        - descriptor 1 is standard output: file to which process writes its output
+        - descriptor 2 is standard error: file to which process writes error message, notification. In interactive shell or program these three descriptors are normally connected to terminal. In stdio library these descriptors correspond to file streams stdin, stdout and stderr. To perform file I/O, C programs employ I/O functions contained in C library. This set of functions is stdio library e.g. fopen(), fclose(), scanf(), printf(), fgets(), fputs(). These are layered on top of I/O system calls (open(), close(), read(), write())
+- Programs
+    - source code: converted to binary instructions to be executed (this contrasts with script, text file containing commands to be directly processed by shell)
+    - Filters: program that reads its input from stdin, performs some transformation and writes to stdout. Example `cat`, `grep`, `tr`, `sort`, `wc`, `sed`, `awk`.
+    - Command-line arguments: `int main(int argc, char * argv[])` `argc` contains total command-line arguments and individual arguments are available as strings pointed by member of array argv.
+- Processes: Kernel loads program into virtual memory sets up bookkeeping data structures to record information (process ID, termination status, user IDs and group IDs)
+    - Process memory layout
+        - text: instructions of the program
+        - data: static variables of the program
+        - heap: program allocates dynamically virtual memory
+        - stack: piece of memory that shrinks and grows as functions are called and return. Used for local variables and functions call linkage information
+    - Process creation and program execution
+        - `fork()` creates a child process from parent process that is duplicate of parent process. Inherits copies of parent's data, stack and hea.
+        - Child executes different set of functions in the same code as parent or use `execve()` system call to load and execute entirely new program. Different library functions for `execve()` are present. `execve()` destroys existing text, data, stack and heap segments.
+        - Each process has process identifier (PID) and parent process identifier (PPID).
+        - Process terminates using `_exit()` system call (exit() library function) or killed by signal and yields a termination status (nonnegative integer) available for inspection by parent process using wait().
+        - Termination status 0 indicates process succeeded and nonzero indicates some error occurred.
+    - Each process has associated user IDs (UIDs) and group IDs (GIDs)
+        - Real user IDs and real group IDs: tells user and group process belongs to.
+        - Effective user ID and effective group ID: determines the permissions the process has when accessing protected resources. Typically same as real IDs.
+        - Supplementary group IDs: these identify additional groups th which process belongs.
+    - Privileged process has effective user is as 0 (superuser) and bypasses permission restrictions applied by kernel. Unprivileged is process have nonzero effective user ID.
+    - Process is privileged when created by another privileged process (e.g. login shell started by shell)
+    - Process may become privileged via set-user-ID mechanism
+    - Linux divides privileges accorded to super-user into set of capabilities. Super-user has all capabilities enabled. Capabilities names begin with prefix `CAP_`, as in `CAP_KILL`
+    - `init` is parent of all processes derived from program file `/sbin/init`. Every process is `fork()` of init or its descendants. `init` create and monitor processes required by system.
+    - Daemon is a long-lived process that starts at boot until shutdown and runs in background e.g. syslogd, httpd.
+    - Each process has environment list, set of environment variables maintained within user-space memory of the process. Child inherits parents environment list. When process replaces program running using `exec()` it inherits environment or receives new environment specified as part of `exec()`. Environment variables are created using `export` command in shell or `setenv` in C shell. C programs access environment variables using external variable `(char **environ)`
+    - setrlimit() system call used to set upper limits on process's resource consumption. Resource limit has a soft limit and hard limit (ceiling of value to which soft limit may be adjusted.). Child inherits this from parent.
+- Memory Mappings
+    `mmap()` creates memory mapping in calling process's virtual address space. Two categories:
+    - A file mapping map a region of a file into the calling process's virtual memory. Once mapped, the file’s contents can be accessed by operations on the bytes in the corresponding memory region. The pages of the mapping are automatically loaded from the file as required.
+    - anonymous mapping doesn’t have a corresponding file. Instead, the pages of the mapping are initialized to 0.
+    - Two processes can map same region or child inherits mapping of its parent. 
+    - When two processes share the same pages, each process see changes made by other process, depending on whether the mapping is created as private or shared.
+    - When a mapping is private, modifications to the contents of the mapping are not visible to other processes and are not carried through to the underlying file. When a mapping is shared, modifications to the contents of the mapping are visible to other processes sharing the same mapping and are carried through to the underlying file.
+- Static and shared libraries
+    - Static : To use functions from a static library, we specify that library in the link command used to build a program. After resolving the various function references from the main program to the modules in the static library, the linker extracts copies of the required object modules from the library and copies these into the resulting executable file. We say that such a program is statically linked.
+    - Shared : If a program is linked against a shared library, then, instead of copying object modules from the library into the executable, the linker just writes a record into the executable to indicate that at run time the executable needs to use that shared library. When the executable is loaded into memory at run time, a program called the dynamic linker ensures that the shared libraries required by the executable are found and loaded into memory, and performs run-time linking to resolve the function calls in the executable to the corresponding definitions in the shared libraries.
+- Interprocess communication and synchronization
+    - signals, which are used to indicate that an event has occurred
+    - pipes (familiar to shell users as the | operator) and FIFOs, which can be used to transfer data between processes
+    - sockets, which can be used to transfer data from one process to another, either on the same host computer or on different hosts connected by a network
+    - file locking, which allows a process to lock regions of a file in order to prevent other processes from reading or updating the file contents
+    - message queues, which are used to exchange messages (packets of data) between processes
+    - semaphores, which are used to synchronize the actions of processes
+    - shared memory, which allows two or more processes to share a piece of memory.
+- Signals are software interrupts. Informs process some exceptional event has occurred.
+    - Each signal type is identified by a different integer, defined with symbolic names of the form SIGxxxx.
+    - Signals are sent to a process by the kernel, by another process (with suitable permissions), or by the process itself.
+    - Signal occurs when:
+        - the user typed the interrupt character (usually Control-C) on the keyboard
+        - one of the process’s children has terminated
+        - a timer (alarm clock) set by the process has expired
+        - the process attempted to access an invalid memory address
+    - In shell kill used to send signal to a process, similar to kill() system call.
+    - When signal received, a process can take any of below actions:
+        - ignores the signal
+        - killed by signal
+        - suspended until later being resumed by receipt of a special-purpose signal
+    - Instead of default signal action we can ignore it or establish signal handler.
+    - Signal handler is programmer-defined function that is automatically invoked when signal is delivered.
+    - Between generated and delivered signal is in pending state and is delivered as soon as receiving process is scheduled to run or immediately if process is already running.
+    - We can block a signal by adding to process's signal mask. If a signal is generated while it is blocked, it remains pending until it is later unblocked.
+- Threads
