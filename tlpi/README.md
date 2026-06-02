@@ -176,4 +176,39 @@ GPL was released in 1989. The current version of the license, version 3, was rel
     - Signal handler is programmer-defined function that is automatically invoked when signal is delivered.
     - Between generated and delivered signal is in pending state and is delivered as soon as receiving process is scheduled to run or immediately if process is already running.
     - We can block a signal by adding to process's signal mask. If a signal is generated while it is blocked, it remains pending until it is later unblocked.
-- Threads
+- Threads:
+    - set of processes that share same virtual memory and other attributes. Each thread execute same program code, share same data area and heap.
+    - Each thread has its own stack containing local variables and function call linkage information.
+    - Threads can communicate using global variables that they share.
+    - Threading API has condition variables and mutexes, these primitives enable threads to communicate and synchronize.
+    - Threads can also communicate using IPC and synchronization mechanism.
+- Process groups and shell job control
+    - Shell creates three processes to execute following pipeline
+
+        `$ ls -l | sort -k5n | less`
+    - Shell has job control, that allows user to simultaneously execute and manipulate multiple command or pipelines.
+        - All processes in a pipeline are placed in a new process group or job. Each process has same process group identifier that is process ID of one of processes in group (process group leader)
+        - Kernel allows various actions, delivery of signals to be performed on all members of process group.
+- Sessions, controlling terminals, and controlling processes
+    - Session is collection of process groups (jobs). All processes in session have same session identifier. Session leader is process that created the session, its process ID is session ID.
+    - Sessions have a controlling terminal. Controlling terminal is established when session leader process opens a terminal device.
+    - Session leader becomes controlling process for terminal. Controlling process receives a SIGHUP if a terminal disconnect occurs.
+    - At any point in time one process group is foreground process group (foreground job).
+    - Control-C (interrupt) or Control-Z (suspend) the terminal driver sends signal to kill or suspend the foreground group.
+    - Session can have any number of background jobs.
+- Pseudoterminals : pair of connected virtual devices as master and slave. They have IPC to communicate in both directions. Slave device provides interface that behaves like a terminal, which makes it possible to connect a terminal-oriented program to the slave device and then use another program connected to the master device to drive the terminal-oriented program. They are used in telnet and ssh.
+- Date and time
+    - Real time is measured either from some standard point (calendar time) or from some fixed point, typically the start, in the life of a process (elapsed or wall clock time). On UNIX systems, calendar time is measured in seconds since midnight on the morning of January 1, 1970, Universal Coordinated Time (usually abbreviated UTC), and coordinated on the base point for timezones defined by the longitudinal line passing through Greenwich, England. This date, which is close to the birth of the UNIX system, is referred to as the Epoch.
+    - Process time, also called CPU time, is the total amount of CPU time that a process has used since starting. CPU time is further divided into system CPU time, the time spent executing code in kernel mode (i.e., executing system calls and performing other kernel services on behalf of the process), and user CPU time, the time spent executing code in user mode (i.e., executing normal program code).
+- Client-Server Architecture
+    A client-server application is one that is broken into two component processes:
+    - a client, which asks the server to carry out some service by sending it a request message; and
+    - a server, which examines the client’s request, performs appropriate actions, and then sends a response message back to the client.
+    - Client and server may reside on same host computer or separate hosts connected via a network. They use IPC to communicate.
+- Realtime
+    - Realtime applications are those that need to respond in a timely fashion to input. These inputs comes from external sensor or specialized input device.
+    - POSIX.1b defined number of extensions to POSIX.1 for the support of real-time applications. These include asynchronous I/O, shared memory, memory-mapped files, memory locking, realtime clocks and timers, alternative scheduling policies, realtime signals, message queues, and semaphores.
+- The `/proc` file system
+    - `/proc` file system consists of set of directories and files mounted under /proc directory.
+    - It is virtual file system that provides an interface to the kernel data structures in form that looks like files and directories on a file system.
+    - a set of directories with names of the form `/proc/PID`, where PID is a process ID, allows us to view information about each process running on the system.
