@@ -6,3 +6,6 @@
 - Stop docker container: `docker stop <container_id>`
 - Delete container: `docker rm <container_id>`
 - Remove all containers: `docker container prune -f`
+- Disconnect container to run in background using `-d` or `--detach`
+- Use `--since`, `--from`, `--until` or `--tail` with `docker logs <--flag> <container_id>`
+- Use `-p` switch with incoming port to open in host and port mapped inside container with `docker run -p <host_machine_port>:<mapped_docker_port> <docker_image>
