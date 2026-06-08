@@ -12,3 +12,5 @@
 - Use `-v` switch to map directory inside the container to a persistent storage: `docker run -v /your/dir:/docker/dir <docker image>`
 - List docker images: `docker image ls`
 - Image published to registry: `<repository_name>/<name>:<tag>`
+- Download a image manually: `docker pull <repository_name>/<name>:<tag>`
+- Download image and run container from docker hub or DNS: `docker run <repository_name>/<name>:<tag>`
