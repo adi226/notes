@@ -23,3 +23,5 @@
     - Build context is directory provided to docker `build` command. Content are available for `COPY` during image build process.
     - `-it` switch allows to stop container using `Ctrl-C` from
     - `-rm` ensures container is deleted once it has stopped
+- List docker images in local: `docker image ls`
+- Remove docker image: `docker rmi <docker_id>` or `docker rmi <repository>:<tag>`
