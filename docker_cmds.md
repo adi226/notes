@@ -14,3 +14,12 @@
 - Image published to registry: `<repository_name>/<name>:<tag>`
 - Download a image manually: `docker pull <repository_name>/<name>:<tag>`
 - Download image and run container from docker hub or DNS: `docker run <repository_name>/<name>:<tag>`
+- Build docker image:
+	- `Dockerfile` is default filename. Can be named anything else.
+	- `Dockerfile` starts with `FROM` for the base image
+	- `CMD` specifies which executable to run when container is created. Program and its arguments provided as JSON array of strings
+	- Create image from current path `Dockerfile`: `docker build -t <image_name> .`
+    - Use `-f` switch to provide `Dockerfile` path
+    - Build context is directory provided to docker `build` command. Content are available for `COPY` during image build process.
+    - `-it` switch allows to stop container using `Ctrl-C` from
+    - `-rm` ensures container is deleted once it has stopped
